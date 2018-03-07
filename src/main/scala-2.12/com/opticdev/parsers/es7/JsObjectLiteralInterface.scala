@@ -21,7 +21,7 @@ class JsObjectLiteralInterface extends ObjectLiterals {
     val children = CommonAstNode.children(graph)
     val key = children.find(_._1.asInstanceOf[Child].typ == "key").map(i=> {
       i._2.nodeType match {
-        case AstType("Literal", "es7") => (i._2.properties \ "raw").get.as[JsString].value
+        case AstType("Literal", "es7") => (i._2.properties \ "value").get.as[JsString].value
         case AstType("Identifier", "es7") => (i._2.properties \ "name").get.as[JsString].value
       }
     })

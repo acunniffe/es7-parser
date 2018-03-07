@@ -175,6 +175,17 @@ class SourceInterfaceTest extends FunSpec {
 
       }
 
+      it("can parse a valid object with string keys") {
+
+        assert(f.sourceCode("var obj = { 'one': 1, 'two': 'two', 'three': true }") == JsObject(Seq(
+          "one" -> JsNumber(1),
+          "two" -> JsString("two"),
+          "three" -> JsBoolean(true),
+          "_order" -> JsArray(Seq(JsString("one"), JsString("two"), JsString("three")))
+        )))
+
+      }
+
       it("can parse a nested object") {
 
         assert(f.sourceCode("var obj = { one: 1, two: { three: true } }") == JsObject(Seq(

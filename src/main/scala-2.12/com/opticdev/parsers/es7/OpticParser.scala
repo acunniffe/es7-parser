@@ -19,15 +19,15 @@ import java.io.BufferedReader
 import java.io.InputStreamReader
 
 class OpticParser extends ParserBase {
-  lazy val languageName = "es7"
-  lazy val parserVersion = "0.1.0"
-  lazy val fileExtensions = Set(".js")
-  lazy val programNodeType = AstType("Program", languageName)
-  lazy val blockNodeTypes = BlockNodeTypes(
+  def languageName = "es7"
+  def parserVersion = "0.1.0"
+  def fileExtensions = Set(".js")
+  def programNodeType = AstType("Program", languageName)
+  def blockNodeTypes = BlockNodeTypes(
     BlockNodeDesc(AstType("BlockStatement", languageName), "body"),
     BlockNodeDesc(AstType("Program", languageName), "body")
   )
-  lazy val identifierNodeDesc = IdentifierNodeDesc(AstType("Identifier", languageName), Seq("name"))
+  def identifierNodeDesc = IdentifierNodeDesc(AstType("Identifier", languageName), Seq("name"))
 
   private val thisParser = this
   val basicSourceInterface = new BasicSourceInterface {
@@ -36,9 +36,9 @@ class OpticParser extends ParserBase {
     override val objectLiterals = ObjectLiteralsInterfaces(new JsObjectLiteralInterface)(this, thisParser)
   }
 
-  lazy val marvinSourceInterface = JsSourceInterface
+  def marvinSourceInterface = JsSourceInterface
 
-  private lazy val (engine, compiledScript) : (NashornScriptEngine, CompiledScript) = {
+  private val (engine, compiledScript) : (NashornScriptEngine, CompiledScript) = {
     val path = this.getClass.getClassLoader.getResource("acorn.js")
     val engine: NashornScriptEngine = new ScriptEngineManager(null).getEngineByName("nashorn").asInstanceOf[NashornScriptEngine]
 
@@ -65,4 +65,6 @@ class OpticParser extends ParserBase {
 
     ParserResult(asGraph, languageName, parsedJsonString.elapsedTime)
   }
+
+  override def excludedPaths: Seq[String] = Seq("node_modules/")
 }
