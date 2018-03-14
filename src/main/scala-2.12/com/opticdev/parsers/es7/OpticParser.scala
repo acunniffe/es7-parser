@@ -20,7 +20,7 @@ import java.io.InputStreamReader
 
 class OpticParser extends ParserBase {
   def languageName = "es7"
-  def parserVersion = "0.1.0"
+  def parserVersion = "0.1.1"
   def fileExtensions = Set(".js")
   def programNodeType = AstType("Program", languageName)
   def blockNodeTypes = BlockNodeTypes(
