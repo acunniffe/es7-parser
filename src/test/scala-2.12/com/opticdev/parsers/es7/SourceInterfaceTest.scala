@@ -199,13 +199,12 @@ class SourceInterfaceTest extends FunSpec {
 
       }
 
-      it("will default to parsing identifiers as strings") {
+      it("will parse identifiers as objects") {
 
-        println(f.sourceCode("var obj = { one: one, two: two, three: three }"))
         assert(f.sourceCode("var obj = { one: one, two: two, three: three }") == JsObject(Seq(
-          "one" -> JsString("one"),
-          "two" -> JsString("two"),
-          "three" -> JsString("three"),
+          "one" -> JsObject(Seq("_valueFormat" -> JsString("token"), "value" -> JsString("one"))),
+          "two" -> JsObject(Seq("_valueFormat" -> JsString("token"), "value" -> JsString("two"))),
+          "three" -> JsObject(Seq("_valueFormat" -> JsString("token"), "value" -> JsString("three"))),
           "_order" -> JsArray(Seq(JsString("one"), JsString("two"), JsString("three")))
         )))
 
@@ -243,6 +242,30 @@ class SourceInterfaceTest extends FunSpec {
         ))
 
         assert(f.mutatedSourceCode(originalString, updated) == "{ one: 1, two: 'two', three: true }")
+      }
+
+      it("will create tokens values if _valueFormat = 'token'") {
+        val originalString = "var obj = { one: 1, two: 'two' }"
+        val updated = JsObject(Seq(
+          "one" -> JsNumber(1),
+          "two" -> JsString("two"),
+          "three" -> JsObject(Seq("_valueFormat" -> JsString("token"), "value" -> JsString("TESTING"))),
+          "_order" -> JsArray(Seq(JsString("one"), JsString("two"), JsString("three")))
+        ))
+
+        assert(f.mutatedSourceCode(originalString, updated) == "{ one: 1, two: 'two', three: TESTING }")
+      }
+
+      it("will create tokens values if _valueFormat = 'code'") {
+        val originalString = "var obj = { one: 1, two: 'two' }"
+        val updated = JsObject(Seq(
+          "one" -> JsNumber(1),
+          "two" -> JsString("two"),
+          "three" -> JsObject(Seq("_valueFormat" -> JsString("code"), "value" -> JsString("request.query.thing"))),
+          "_order" -> JsArray(Seq(JsString("one"), JsString("two"), JsString("three")))
+        ))
+
+        assert(f.mutatedSourceCode(originalString, updated) == "{ one: 1, two: 'two', three: request.query.thing }")
       }
 
       it("new keys can be added") {

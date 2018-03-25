@@ -38,10 +38,9 @@ class JsObjectLiteralInterface extends ObjectLiterals {
             basicSourceInterface.literals.parseNode(i._2, graph, raw.substring(i._2))
               .get
           case AstType("Identifier", "es7") =>
-            basicSourceInterface.tokens.parseNode(i._2, graph, raw.substring(i._2))
-              .get
+            JsObject(Seq("_valueFormat" -> JsString("token"), "value" -> basicSourceInterface.tokens.parseNode(i._2, graph, raw.substring(i._2))
+              .get))
           case AstType("ObjectExpression", "es7") => basicSourceInterface.objectLiterals.parseNode(i._2, graph, raw).get
-          //          case for nested objects
         }
       })
 
@@ -49,14 +48,19 @@ class JsObjectLiteralInterface extends ObjectLiterals {
   }
 
   def jsValueToNewNode(jsValue: JsValue, sourceParser: ParserBase, basicSourceInterface: BasicSourceInterface): NewAstNode = {
+    import ObjectLiteralValueFormat._
     def literal(jsValue: JsValue) = NewAstNode("Literal", Map(), basicSourceInterface.literals.generateFrom(jsValue).toOption)
-    jsValue match {
-      case s: JsString => literal(s)
-      case n: JsNumber => literal(n)
-      case b: JsBoolean => literal(b)
-      case JsNull => literal(JsNull)
-//      case seq: JsArray =>
-      case obj: JsObject => NewAstNode("ObjectExpression", Map(), Some(generator(obj, sourceParser, basicSourceInterface)))
+    val valueWithFormat = ObjectLiteralValueFormat.valueForJson(jsValue)
+
+    valueWithFormat.format match {
+      case Primitive => {
+        valueWithFormat.value match {
+          case obj: JsObject => NewAstNode("ObjectExpression", Map(), Some(generator(obj, sourceParser, basicSourceInterface)))
+          case _ => literal(valueWithFormat.value)
+        }
+      }
+      case Token => NewAstNode("Identifier", Map(), Some(valueWithFormat.value.as[JsString].value))
+      case Code => NewAstNode("Expression", Map(), Some(valueWithFormat.value.as[JsString].value))
     }
   }
 
@@ -176,5 +180,3 @@ class JsObjectLiteralInterface extends ObjectLiterals {
     ""
   }
 }
-
-
