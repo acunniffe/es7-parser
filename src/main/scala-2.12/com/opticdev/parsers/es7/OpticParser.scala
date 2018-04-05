@@ -2,13 +2,13 @@ package com.opticdev.parsers.es7
 
 import java.io.File
 import java.security.MessageDigest
-import javax.script.{ScriptEngine, ScriptEngineManager}
 
-import com.opticdev.parsers.graph.AstType
+import javax.script.{ScriptEngine, ScriptEngineManager}
+import com.opticdev.parsers.graph.{AstType, CommonAstNode}
 import com.opticdev.parsers.sourcegear.advanced.{BaseAstMutator, MarvinSourceInterface}
 import com.opticdev.parsers.sourcegear.basic.{BasicSourceInterface, LiteralInterfaces, ObjectLiteralsInterfaces, TokenInterfaces}
 import com.opticdev.parsers.utils.Profiling
-import com.opticdev.parsers._
+import com.opticdev.parsers.{AstGraph, _}
 import jdk.nashorn.api.scripting.{NashornScriptEngine, ScriptObjectMirror}
 import play.api.libs.json._
 import javax.script.CompiledScript
@@ -67,4 +67,13 @@ class OpticParser extends ParserBase {
   }
 
   override def excludedPaths: Seq[String] = Seq("node_modules/")
+
+  override def enterOnPostProcessor: Map[AstType, EnterOnPostProcessor] = Map(
+    //always match the first child. statement is just a pass-through node
+    AstType("ExpressionStatement", languageName) -> ((typ, graph, node)=> {
+      val childNode = node.children(graph).head._2
+      (Set(childNode.nodeType), childNode)
+    })
+  )
+
 }

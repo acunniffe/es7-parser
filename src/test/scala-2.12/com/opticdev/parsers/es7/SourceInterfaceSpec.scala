@@ -6,7 +6,7 @@ import com.opticdev.parsers.sourcegear.basic._
 import org.scalatest.FunSpec
 import play.api.libs.json._
 
-class SourceInterfaceTest extends FunSpec {
+class SourceInterfaceSpec extends FunSpec {
 
   val jsParser = new OpticParser
 

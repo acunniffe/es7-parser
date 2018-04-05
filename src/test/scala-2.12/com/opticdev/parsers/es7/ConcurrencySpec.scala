@@ -3,7 +3,7 @@ package com.opticdev.parsers.es7
 
 import org.scalatest.FunSpec
 
-class ConcurrencyTest extends FunSpec {
+class ConcurrencySpec extends FunSpec {
 
   it("will parse a sequence of files the same serially or in parallel") {
     val parser = new OpticParser()
