@@ -41,6 +41,7 @@ class JsObjectLiteralInterface extends ObjectLiterals {
             JsObject(Seq("_valueFormat" -> JsString("token"), "value" -> basicSourceInterface.tokens.parseNode(i._2, graph, raw.substring(i._2))
               .get))
           case AstType("ObjectExpression", "es7") => basicSourceInterface.objectLiterals.parseNode(i._2, graph, raw).get
+          case _ => JsObject(Seq("_valueFormat" -> JsString("code"), "value" -> JsString(raw.substring(i._2))))
         }
       })
 

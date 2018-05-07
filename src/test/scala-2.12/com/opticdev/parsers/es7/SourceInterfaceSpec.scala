@@ -210,16 +210,6 @@ class SourceInterfaceSpec extends FunSpec {
 
       }
 
-      it("will not include invalid keys (functions), but will parse valid ones") {
-
-        assert(f.sourceCode("var obj = { one: 1, two: ()=> {}, three: true }") == JsObject(Seq(
-          "one" -> JsNumber(1),
-          "three" -> JsBoolean(true),
-          "_order" -> JsArray(Seq(JsString("one"), JsString("three")))
-        )))
-
-      }
-
       it("will give priority to the last key") {
 
         assert(f.sourceCode("var obj = { one: 1, one: 'one' }") == JsObject(Seq(
@@ -228,6 +218,36 @@ class SourceInterfaceSpec extends FunSpec {
         )))
 
       }
+
+      describe("value formats") {
+
+        it("will parse non-primitives as _valueFormat = code") {
+          assert(f.sourceCode("var obj = { one: 1, two: req.query.me, three: true }") == JsObject(Seq(
+            "one" -> JsNumber(1),
+            "two" -> JsObject(Seq(
+              "_valueFormat" -> JsString("code"),
+              "value" -> JsString("req.query.me")
+            )),
+            "three" -> JsBoolean(true),
+            "_order" -> JsArray(Seq(JsString("one"), JsString("two"), JsString("three")))
+          )))
+        }
+
+        it("will parse tokens as _valueFormat = code") {
+          assert(f.sourceCode("var obj = { one: 1, two: query, three: true }") == JsObject(Seq(
+            "one" -> JsNumber(1),
+            "two" -> JsObject(Seq(
+              "_valueFormat" -> JsString("token"),
+              "value" -> JsString("query")
+            )),
+            "three" -> JsBoolean(true),
+            "_order" -> JsArray(Seq(JsString("one"), JsString("two"), JsString("three")))
+          )))
+        }
+
+      }
+
+
     }
 
     describe("mutating") {
@@ -339,14 +359,16 @@ class SourceInterfaceSpec extends FunSpec {
         assert(f.mutatedSourceCode(originalString, updated) == "{ one: 1, two: 'two', three: 12 }")
       }
 
-      it("unsupported values are preserved") {
-        val originalString = "var obj = { one: 1, two: 'two', notgonnawork: ()=> {}, three: true }"
+      it("code valueformats are preserved") {
+        val originalString = "var obj = { one: 1, two: 'two', code: thisIs.code(), three: true }"
         val updated = JsObject(Seq(
           "one" -> JsNumber(15),
+          "code" -> JsObject(Seq("_valueFormat" -> JsString("code"), "value" -> JsString("thisIs.code()"))),
           "three" -> JsBoolean(false),
-          "_order" -> JsArray(Seq(JsString("one"), JsString("three")))
+          "_order" -> JsArray(Seq(JsString("one"), JsString("code"), JsString("three")))
         ))
-        assert(f.mutatedSourceCode(originalString, updated) == "{ one: 15, three: false, notgonnawork: ()=> {} }")
+
+        assert(f.mutatedSourceCode(originalString, updated) == "{ one: 15, code: thisIs.code(), three: false }")
       }
 
     }
