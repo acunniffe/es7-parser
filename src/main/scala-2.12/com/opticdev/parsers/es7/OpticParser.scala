@@ -18,6 +18,8 @@ import scala.util.Random
 import java.io.BufferedReader
 import java.io.InputStreamReader
 
+import scala.reflect.io.File
+
 class OpticParser extends ParserBase {
   def languageName = "es7"
   def parserVersion = "0.1.2"
@@ -39,15 +41,20 @@ class OpticParser extends ParserBase {
   def marvinSourceInterface = JsSourceInterface
 
   private val (engine, compiledScript) : (NashornScriptEngine, CompiledScript) = {
-    val path = this.getClass.getClassLoader.getResource("acorn.js")
+    val acornPath = this.getClass.getClassLoader.getResource("acorn.js")
+    val jsxPath = this.getClass.getClassLoader.getResource("jsxInject.js")
     val engine: NashornScriptEngine = new ScriptEngineManager(null).getEngineByName("nashorn").asInstanceOf[NashornScriptEngine]
 
-    val acornSource = scala.io.Source.fromInputStream(path.openStream()).mkString
+    val acornSource = scala.io.Source.fromInputStream(acornPath.openStream()).mkString
+    val jsxInject = scala.io.Source.fromInputStream(jsxPath.openStream()).mkString
 
-    val script = "(function () { \n" +
-      acornSource + "\n " +
-      "return {ast: JSON.stringify(acorn.parse(contents, {sourceType: 'module', ecmaVersion: 7} ))} \n"+
-      "})()"
+    val script = s"""
+        |(function () {
+        |${acornSource}
+        |${jsxInject}
+        |return {ast: JSON.stringify(acorn.parse(contents, {sourceType: 'module', ecmaVersion: 7, 'plugins': {'jsx': true}} ))}
+        |})()
+      """.stripMargin
 
     val compiledScript = engine.compile(script)
     (engine, compiledScript)
@@ -71,6 +78,10 @@ class OpticParser extends ParserBase {
   override def enterOnPostProcessor: Map[AstType, EnterOnPostProcessor] = Map(
     //always match the first child. statement is just a pass-through node
     AstType("ExpressionStatement", languageName) -> ((typ, graph, node)=> {
+      val childNode = node.children(graph).head._2
+      (Set(childNode.nodeType), childNode)
+    }),
+    AstType("JSXExpressionContainer", languageName) -> ((typ, graph, node)=> {
       val childNode = node.children(graph).head._2
       (Set(childNode.nodeType), childNode)
     })

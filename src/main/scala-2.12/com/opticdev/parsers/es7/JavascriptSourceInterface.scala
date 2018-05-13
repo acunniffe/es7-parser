@@ -7,6 +7,8 @@ import com.opticdev.marvin.runtime.mutators.{AstMutator, NodeMutatorMap}
 import com.opticdev.marvin.runtime.pattern._
 import com.opticdev.marvin.runtime.predicates.isNull
 
+import scala.util.Try
+
 object JsSourceInterface extends NodeMutatorMap {
 
   implicit val nodeMutatorMap = this
@@ -144,6 +146,22 @@ object JsSourceInterface extends NodeMutatorMap {
           case n: AstBoolean => CodePattern(PropertyBinding("value"))
           case _ => CodePattern(PropertyBinding("value"))
         }
+      }
+    }
+
+    override val nodeType: String = "Literal"
+  }
+
+  class StringLiteral extends AstMutator {
+    def expectedPattern(node: BaseAstNode): CodePattern =
+    // Accuracy = 1.0
+    {
+      val valueisNull: Boolean = isNull.evaluate(node.properties.getOrElse("value", AstNull))
+      if (valueisNull) {
+        CodePattern(SymbolComponent("null"))
+      }
+      else {
+        CodePattern(SymbolComponent("\""), PropertyBinding("value"), SymbolComponent("\""))
       }
     }
 
@@ -430,5 +448,147 @@ object JsSourceInterface extends NodeMutatorMap {
     override val nodeType: String = "ExpressionStatement"
   }
 
-  val mapping: Map[String, AstMutator] = Map(("UnaryExpression", new UnaryExpression), ("UpdateExpression", new UpdateExpression), ("SequenceExpression", new SequenceExpression), ("CallExpression", new CallExpression), ("CatchClause", new CatchClause), ("IfStatement", new IfStatement), ("BlockStatement", new BlockStatement), ("NewExpression", new NewExpression), ("LogicalExpression", new LogicalExpression), ("ClassBody", new ClassBody), ("ContinueStatement", new ContinueStatement), ("Literal", new Literal), ("ConditionalExpression", new ConditionalExpression), ("AssignmentExpression", new AssignmentExpression), ("ClassDeclaration", new ClassDeclaration), ("Program", new Program), ("MemberExpression", new MemberExpression), ("VariableDeclarator", new VariableDeclarator), ("EmptyStatement", new EmptyStatement), ("ReturnStatement", new ReturnStatement), ("WhileStatement", new WhileStatement), ("VariableDeclaration", new VariableDeclaration), ("TryStatement", new TryStatement), ("ForStatement", new ForStatement), ("ForInStatement", new ForInStatement), ("MethodDefinition", new MethodDefinition), ("BinaryExpression", new BinaryExpression), ("FunctionExpression", new FunctionExpression), ("Identifier", new Identifier), ("ObjectExpression", new ObjectExpression), ("ThrowStatement", new ThrowStatement), ("BreakStatement", new BreakStatement), ("FunctionDeclaration", new FunctionDeclaration), ("ArrayExpression", new ArrayExpression), ("Property", new Property), ("ThisExpression", new ThisExpression), ("ExpressionStatement", new ExpressionStatement))
+  //JSX Plugin
+
+  class JSXAttribute extends AstMutator {
+    def expectedPattern(node: BaseAstNode): CodePattern =
+    // Accuracy = 1.0
+    {
+      CodePattern(ChildNode("name"), SymbolComponent("="), ChildNode("value"))
+    }
+
+    override val nodeType: String = "JSXAttribute"
+  }
+
+  class JSXSpreadAttribute extends AstMutator {
+    def expectedPattern(node: BaseAstNode): CodePattern =
+    // Accuracy = 1.0
+    {
+      CodePattern(SymbolComponent("{"), SymbolComponent("..."), ChildNode("argument"), SymbolComponent("}"))
+    }
+
+    override val nodeType: String = "JSXSpreadAttribute"
+  }
+
+  class JSXText extends AstMutator {
+    def expectedPattern(node: BaseAstNode): CodePattern =
+    // Accuracy = 1.0
+    {
+      CodePattern(PropertyBinding("value"))
+    }
+
+    override val nodeType: String = "JSXText"
+  }
+
+  class JSXIdentifier extends AstMutator {
+    def expectedPattern(node: BaseAstNode): CodePattern =
+    // Accuracy = 1.0
+    {
+      CodePattern(PropertyBinding("name"))
+    }
+
+    override val nodeType: String = "JSXIdentifier"
+  }
+
+  class JSXExpressionContainer extends AstMutator {
+    def expectedPattern(node: BaseAstNode): CodePattern =
+    // Accuracy = 1.0
+    {
+      CodePattern(ChildNode("expression"))
+    }
+
+    override val nodeType: String = "JSXExpressionContainer"
+  }
+
+  class JSXFragment extends AstMutator {
+    def expectedPattern(node: BaseAstNode): CodePattern =
+    // Accuracy = 1.0
+    {
+      CodePattern(ChildNode("JSXOpeningFragment"), Line, ChildNodeList("elements", ",\n"), Line, ChildNode("JSXClosingFragment"))
+    }
+
+    override val nodeType: String = "JSXFragment"
+  }
+
+  class JSXOpeningFragment extends AstMutator {
+    def expectedPattern(node: BaseAstNode): CodePattern =
+    // Accuracy = 1.0
+    {
+      CodePattern(SymbolComponent("<>"))
+    }
+
+    override val nodeType: String = "JSXOpeningFragment"
+  }
+
+  class JSXClosingFragment extends AstMutator {
+    def expectedPattern(node: BaseAstNode): CodePattern =
+    // Accuracy = 1.0
+    {
+      CodePattern(SymbolComponent("</>"))
+    }
+
+    override val nodeType: String = "JSXClosingFragment"
+  }
+
+  class JSXOpeningElement extends AstMutator {
+    def expectedPattern(node: BaseAstNode): CodePattern =
+    // Accuracy = 1.0
+    {
+      val moreThan1Attribute = Try(node.properties("attributes").asInstanceOf[AstArray].children.size > 1).getOrElse(false)
+      val moreThan0Attributes = Try(node.properties("attributes").asInstanceOf[AstArray].children.size > 0).getOrElse(false)
+      val isSelfClosingTrue = Try(node.properties("selfClosing").asInstanceOf[AstBoolean].value).getOrElse(false)
+
+      if (moreThan1Attribute) {
+        if (isSelfClosingTrue) {
+          CodePattern(SymbolComponent("<"), ChildNode("name"), if (moreThan0Attributes) Line else Empty, ChildNodeList("attributes", "\n"), Line, SymbolComponent("/>"))
+        } else {
+          CodePattern(SymbolComponent("<"), ChildNode("name"), if (moreThan0Attributes) Line else Empty, ChildNodeList("attributes", "\n"), Line, SymbolComponent(">"))
+        }
+      } else {
+        if (isSelfClosingTrue) {
+          CodePattern(SymbolComponent("<"), ChildNode("name"), if (moreThan0Attributes) Space else Empty, ChildNodeList("attributes", "\n"), SymbolComponent("/>"))
+        } else {
+          CodePattern(SymbolComponent("<"), ChildNode("name"), if (moreThan0Attributes) Space else Empty, ChildNodeList("attributes", "\n"), SymbolComponent(">"))
+        }
+      }
+
+    }
+
+    override val nodeType: String = "JSXOpeningElement"
+  }
+
+  class JSXClosingElement extends AstMutator {
+    def expectedPattern(node: BaseAstNode): CodePattern =
+    // Accuracy = 1.0
+    {
+      CodePattern(SymbolComponent("</"), ChildNode("name"), SymbolComponent(">"))
+    }
+
+    override val nodeType: String = "JSXClosingElement"
+  }
+
+  class JSXElement extends AstMutator {
+    def expectedPattern(node: BaseAstNode): CodePattern =
+    // Accuracy = 1.0
+    {
+
+      val isClosingElementNull: Boolean = isNull.evaluate(node.properties.getOrElse("closingElement", AstNull))
+      val moreThan1Children = Try(node.properties("children").asInstanceOf[AstArray].children.size > 1).getOrElse(false)
+
+      if (isClosingElementNull) {
+        CodePattern(ChildNode("openingElement"))
+      } else {
+        if (moreThan1Children) {
+          CodePattern(ChildNode("openingElement"), Line, ChildNodeList("children", "\n"), Line, ChildNode("closingElement"))
+        } else {
+          CodePattern(ChildNode("openingElement"), ChildNodeList("children", " "),  ChildNode("closingElement"))
+        }
+      }
+    }
+
+    override val nodeType: String = "JSXClosingElement"
+  }
+
+  val mapping: Map[String, AstMutator] = Map(("UnaryExpression", new UnaryExpression), ("UpdateExpression", new UpdateExpression), ("SequenceExpression", new SequenceExpression), ("CallExpression", new CallExpression), ("CatchClause", new CatchClause), ("IfStatement", new IfStatement), ("BlockStatement", new BlockStatement), ("NewExpression", new NewExpression), ("LogicalExpression", new LogicalExpression), ("ClassBody", new ClassBody), ("ContinueStatement", new ContinueStatement), ("Literal", new Literal), ("StringLiteral", new StringLiteral), ("ConditionalExpression", new ConditionalExpression), ("AssignmentExpression", new AssignmentExpression), ("ClassDeclaration", new ClassDeclaration), ("Program", new Program), ("MemberExpression", new MemberExpression), ("VariableDeclarator", new VariableDeclarator), ("EmptyStatement", new EmptyStatement), ("ReturnStatement", new ReturnStatement), ("WhileStatement", new WhileStatement), ("VariableDeclaration", new VariableDeclaration), ("TryStatement", new TryStatement), ("ForStatement", new ForStatement), ("ForInStatement", new ForInStatement), ("MethodDefinition", new MethodDefinition), ("BinaryExpression", new BinaryExpression), ("FunctionExpression", new FunctionExpression), ("Identifier", new Identifier), ("ObjectExpression", new ObjectExpression), ("ThrowStatement", new ThrowStatement), ("BreakStatement", new BreakStatement), ("FunctionDeclaration", new FunctionDeclaration), ("ArrayExpression", new ArrayExpression), ("Property", new Property), ("ThisExpression", new ThisExpression), ("ExpressionStatement", new ExpressionStatement), ("JSXAttribute", new JSXAttribute), ("JSXSpreadAttribute", new JSXSpreadAttribute), ("JSXText", new JSXText), ("JSXIdentifier", new JSXIdentifier), ("JSXExpressionContainer", new JSXExpressionContainer), ("JSXFragment", new JSXFragment), ("JSXOpeningFragment", new JSXOpeningFragment), ("JSXClosingFragment", new JSXClosingFragment), ("JSXOpeningElement", new JSXOpeningElement), ("JSXClosingElement", new JSXClosingElement), ("JSXElement", new JSXElement))
+
 }
