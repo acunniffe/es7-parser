@@ -22,7 +22,7 @@ import scala.reflect.io.File
 
 class OpticParser extends ParserBase {
   def languageName = "es7"
-  def parserVersion = "0.1.2"
+  def parserVersion = "1.0.0"
   def fileExtensions = Set(".js")
   def programNodeType = AstType("Program", languageName)
   def blockNodeTypes = BlockNodeTypes(

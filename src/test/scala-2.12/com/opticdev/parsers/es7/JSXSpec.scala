@@ -96,7 +96,6 @@ class JSXSpec extends FunSpec {
           NewAstNode("JSXElement", node("div", false))
         )))
 
-        println(code)
         assert(code === """<TestClass test="value">
                           |<div/>
                           |<div></div>
