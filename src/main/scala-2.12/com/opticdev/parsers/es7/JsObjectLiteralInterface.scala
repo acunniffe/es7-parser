@@ -28,9 +28,9 @@ class JsObjectLiteralInterface extends ObjectLiterals {
     key.get
   }
 
-  def extractKeyValuePairs(CommonAstNode: CommonAstNode, raw: String, graph: AstGraph, basicSourceInterface: BasicSourceInterface) : Try[(String, JsValue)] = Try {
-      val children = CommonAstNode.children(graph)
-      val key = extractKey(CommonAstNode, raw, graph, basicSourceInterface)
+  def extractKeyValuePairs(commonAstNode: CommonAstNode, raw: String, graph: AstGraph, basicSourceInterface: BasicSourceInterface) : Try[(String, JsValue)] = Try {
+      val children = commonAstNode.children(graph)
+      val key = extractKey(commonAstNode, raw, graph, basicSourceInterface)
 
       val value : Option[JsValue] = children.find(_._1.asInstanceOf[Child].typ == "value").map(i=> {
         i._2.nodeType match {
@@ -177,7 +177,22 @@ class JsObjectLiteralInterface extends ObjectLiterals {
       asMarvinAstNode.mutator.applyChanges(asMarvinAstNode, Map("properties" -> AstArray(sortedWithUnsupportedNodes:_*)))
     }
   }
+
+
+
   override val generator : SourceGenerator = (newValue, sourceParser, basicSourceInterface) => {
-    ""
+
+    val empty = {
+      val string = "var a = {}"
+      val parsed = sourceParser.parseString("var a = {}")
+      val graph = parsed.graph
+      val possibleNodes = graph.nodes.toVector
+        .filter(_.value.asInstanceOf[CommonAstNode].nodeType == astType)
+      val node = possibleNodes.minBy(_.value.asInstanceOf[CommonAstNode].graphDepth(graph))
+      val raw = string
+      (node.value.asInstanceOf[CommonAstNode], graph, raw)
+    }
+
+    mutator(empty._1, empty._2, empty._3, newValue, sourceParser, basicSourceInterface)
   }
 }

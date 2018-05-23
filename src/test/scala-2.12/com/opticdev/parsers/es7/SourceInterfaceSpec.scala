@@ -371,6 +371,19 @@ class SourceInterfaceSpec extends FunSpec {
         assert(f.mutatedSourceCode(originalString, updated) == "{ one: 15, code: thisIs.code(), three: false }")
       }
 
+      it("nested change applied") {
+        val originalString = "var obj = { one: 1, two: 'value'}"
+        val updated = JsObject(Seq(
+          "one" -> JsNumber(1),
+          "two" -> JsObject(Seq(
+            "three" -> JsBoolean(true),
+            "four" -> JsBoolean(false)
+          ))
+        ))
+
+        assert(f.mutatedSourceCode(originalString, updated) == "{ one: 1,\ntwo: { three: true,\nfour: false } }")
+      }
+
     }
 
   }
