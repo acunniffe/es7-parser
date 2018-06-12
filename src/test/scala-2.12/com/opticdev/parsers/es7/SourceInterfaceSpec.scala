@@ -381,7 +381,7 @@ class SourceInterfaceSpec extends FunSpec {
           ))
         ))
 
-        assert(f.mutatedSourceCode(originalString, updated) == "{ one: 1,\ntwo: { three: true,\nfour: false } }")
+        assert(f.mutatedSourceCode(originalString, updated) == "{ one: 1, two: { three: true, four: false } }")
       }
 
     }

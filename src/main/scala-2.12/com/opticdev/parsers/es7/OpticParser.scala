@@ -13,12 +13,14 @@ import jdk.nashorn.api.scripting.{NashornScriptEngine, ScriptObjectMirror}
 import play.api.libs.json._
 import javax.script.CompiledScript
 import com.opticdev.parsers.rules.SameAnyOrderPlus
+
 import scala.io.Source
 import scala.util.Random
 import java.io.BufferedReader
 import java.io.InputStreamReader
 
 import com.opticdev.parsers.rules.{ParserChildrenRule, SpecificChildrenRule}
+import com.opticdev.parsers.sourcegear.ParseProxy
 
 import scala.reflect.io.File
 
@@ -73,8 +75,10 @@ class OpticParser extends ParserBase {
     val astJSON: JsValue = Json.parse(parsedJsonString.result.get("ast").asInstanceOf[String])
     val asGraph = ASTJsonToGraph.buildGraphFromJson(astJSON.asInstanceOf[JsObject])
 
-    ParserResult(asGraph, languageName, parsedJsonString.elapsedTime)
+    ParserResult(asGraph, languageName, parsedJsonString.elapsedTime, this)
   }
+
+  override def sourcegearParseProxies: Vector[ParseProxy] = Vector(ParseProxies.caseProxy)
 
   override def excludedPaths: Seq[String] = Seq("node_modules/")
 

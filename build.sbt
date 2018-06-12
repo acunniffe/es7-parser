@@ -2,11 +2,11 @@ name := "es7"
 
 organization := "com.opticdev.parsers"
 
-version := "1.0.0"
+version := "1.0.1"
 
 scalaVersion := "2.12.4"
 
-libraryDependencies += "com.opticdev" %% "parser-foundation" % "0.1.3"
+libraryDependencies += "com.opticdev" %% "parser-foundation" % "0.1.4"
 
 libraryDependencies += "com.opticdev" %% "marvin-runtime" % "0.1.2"
 libraryDependencies += "com.opticdev" %% "marvin-common" % "0.1.2"

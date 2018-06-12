@@ -372,7 +372,12 @@ object JsSourceInterface extends NodeMutatorMap {
     def expectedPattern(node: BaseAstNode): CodePattern =
     // Accuracy = 1.0
     {
-      CodePattern(SymbolComponent("{"), Space, ChildNodeList("properties", ",\n"), Space, SymbolComponent("}"))
+      val moreThan3Properties = Try(node.properties("properties").asInstanceOf[AstArray].children.size > 3).getOrElse(false)
+      if (moreThan3Properties) {
+        CodePattern(SymbolComponent("{"), Space, ChildNodeList("properties", ",\n"), Space, SymbolComponent("}"))
+      } else {
+        CodePattern(SymbolComponent("{"), Space, ChildNodeList("properties", ", "), Space, SymbolComponent("}"))
+      }
     }
 
     override val nodeType: String = "ObjectExpression"
