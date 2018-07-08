@@ -6,7 +6,7 @@ import java.security.MessageDigest
 import javax.script.{ScriptEngine, ScriptEngineManager}
 import com.opticdev.parsers.graph.{AstType, CommonAstNode}
 import com.opticdev.parsers.sourcegear.advanced.{BaseAstMutator, MarvinSourceInterface}
-import com.opticdev.parsers.sourcegear.basic.{BasicSourceInterface, LiteralInterfaces, ObjectLiteralsInterfaces, TokenInterfaces}
+import com.opticdev.parsers.sourcegear.basic._
 import com.opticdev.parsers.utils.Profiling
 import com.opticdev.parsers.{AstGraph, _}
 import jdk.nashorn.api.scripting.{NashornScriptEngine, ScriptObjectMirror}
@@ -27,12 +27,14 @@ import scala.reflect.io.File
 class OpticParser extends ParserBase {
   def languageName = "es7"
   def parserVersion = "1.0.0"
-  def fileExtensions = Set(".js")
+  def fileExtensions = Set(".js", ".jsx")
   def programNodeType = AstType("Program", languageName)
   def blockNodeTypes = BlockNodeTypes(
     BlockNodeDesc(AstType("BlockStatement", languageName), "body"),
     BlockNodeDesc(AstType("Program", languageName), "body"),
-    BlockNodeDesc(AstType("JSXElement", languageName), "children")
+    BlockNodeDesc(AstType("JSXElement", languageName), "children"),
+    BlockNodeDesc(AstType("SwitchStatement", languageName), "cases")
+//    BlockNodeDesc(AstType("SwitchStatement", languageName), "consequent")
   )
   def identifierNodeDesc = IdentifierNodeDesc(AstType("Identifier", languageName), Seq("name"))
 
@@ -41,6 +43,7 @@ class OpticParser extends ParserBase {
     override val literals = LiteralInterfaces(new JsLiteralInterface)(this, thisParser)
     override val tokens = TokenInterfaces(new JsTokenInterface)(this, thisParser)
     override val objectLiterals = ObjectLiteralsInterfaces(new JsObjectLiteralInterface)(this, thisParser)
+    override val arrayLiterals: ArrayLiteralsInterfaces = ArrayLiteralsInterfaces(new JsArrayLiteralInterface)(this, thisParser)
   }
 
   def marvinSourceInterface = JsSourceInterface

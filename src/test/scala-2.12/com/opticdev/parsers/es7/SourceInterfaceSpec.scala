@@ -14,6 +14,7 @@ class SourceInterfaceSpec extends FunSpec {
     override val literals = LiteralInterfaces(new JsLiteralInterface)(this, jsParser)
     override val tokens = TokenInterfaces(new JsTokenInterface)(this, jsParser)
     override val objectLiterals = ObjectLiteralsInterfaces(new JsObjectLiteralInterface)(this, jsParser)
+    override val arrayLiterals = ArrayLiteralsInterfaces(new JsArrayLiteralInterface)(this, jsParser)
   }
 
   def fixture(astType: AstType, interfaces: NodeInterfaceGroup) = new {
@@ -48,6 +49,7 @@ class SourceInterfaceSpec extends FunSpec {
   describe("Js Literal Interface") {
 
     val f = fixture(AstType("Literal", "es7"), jsInterface.literals)
+
     def objectWithValue(jsValue: JsValue) = JsObject(Seq("value" -> jsValue))
 
     describe("Number Literals") {
@@ -382,6 +384,82 @@ class SourceInterfaceSpec extends FunSpec {
         ))
 
         assert(f.mutatedSourceCode(originalString, updated) == "{ one: 1, two: { three: true, four: false } }")
+      }
+
+    }
+
+  }
+
+  describe("Js Array Literal Interface") {
+
+    val f = fixture(AstType("ArrayExpression", "es7"), jsInterface.arrayLiterals)
+
+    describe("parsing") {
+      it("can parse a valid array with literals") {
+        assert(f.sourceCode("var array = [1, 2, 'hey']") == Json.parse("""[1,2,"hey"]"""))
+      }
+
+      it("can parse a valid array with objects") {
+        assert(f.sourceCode("var array = [1, 2, {'hello': 'world'}]") == Json.parse("""[1,2,{"hello":"world","_order":["hello"]}]"""))
+      }
+
+      it("can parse a valid array with sub array") {
+        assert(f.sourceCode("var array = [1, 2, ['one', 'two']]") == Json.parse("""[1,2,["one", "two"]]"""))
+      }
+
+      it("can parse a valid array with tokens") {
+        assert(f.sourceCode("var array = [firstToken, secondToken]") == Json.parse("""[{"_valueFormat":"token","value":"firstToken"},{"_valueFormat":"token","value":"secondToken"}]"""))
+      }
+
+      it("can parse a valid array with code") {
+        assert(f.sourceCode("var array = [8*4]") == Json.parse("""[{"_valueFormat":"code","value":"8*4"}]"""))
+      }
+    }
+
+    describe("mutating") {
+
+      it("if nothing is changed it returns the same ") {
+        val originalString = "var obj = [1, 2, 3]"
+        val updated = Json.parse("""[1,2,3]""")
+
+        assert(f.mutatedSourceCode(originalString, updated) == "[1, 2, 3]")
+      }
+
+      it("can append literal element") {
+        val originalString = "var obj = [1,2,3]"
+        val updated = Json.parse("""[1, 2, 3, 4]""")
+
+        println(f.mutatedSourceCode(originalString, updated))
+
+        assert(f.mutatedSourceCode(originalString, updated) == "[ 1,\n2,\n3,\n4 ]")
+      }
+
+      it("can add literal element to the middle") {
+        val originalString = "var obj = [1, 2,3]"
+        val updated = Json.parse("""[1, "one to two", 2, 3]""")
+
+        assert(f.mutatedSourceCode(originalString, updated) == "[ 1,\n'one to two',\n2,\n3 ]")
+      }
+
+      it("can add array element to the middle") {
+        val originalString = "var obj = [1, 2,3]"
+        val updated = Json.parse("""[1, [ "test" ], 2, 3]""")
+
+        assert(f.mutatedSourceCode(originalString, updated) == "[ 1,\n[ 'test' ],\n2,\n3 ]")
+      }
+
+      it("can add token element to the middle") {
+        val originalString = "var obj = [1, 2,3]"
+        val updated = Json.parse("""[1, {"_valueFormat":"token","value":"firstToken"}, 2, 3]""")
+
+        assert(f.mutatedSourceCode(originalString, updated) == "[ 1,\nfirstToken,\n2,\n3 ]")
+      }
+
+      it("can remove all elements") {
+        val originalString = "var obj = [1, 2,3]"
+        val updated = Json.parse("""[]""")
+
+        assert(f.mutatedSourceCode(originalString, updated) == "[  ]")
       }
 
     }

@@ -41,6 +41,7 @@ class JsObjectLiteralInterface extends ObjectLiterals {
             JsObject(Seq("_valueFormat" -> JsString("token"), "value" -> basicSourceInterface.tokens.parseNode(i._2, graph, raw.substring(i._2))
               .get))
           case AstType("ObjectExpression", "es7") => basicSourceInterface.objectLiterals.parseNode(i._2, graph, raw).get
+          case AstType("ArrayExpression", "es7") => basicSourceInterface.arrayLiterals.parseNode(i._2, graph, raw).get
           case _ => JsObject(Seq("_valueFormat" -> JsString("code"), "value" -> JsString(raw.substring(i._2))))
         }
       })
@@ -57,6 +58,7 @@ class JsObjectLiteralInterface extends ObjectLiterals {
       case Primitive => {
         valueWithFormat.value match {
           case obj: JsObject => NewAstNode("ObjectExpression", Map(), Some(generator(obj, sourceParser, basicSourceInterface)))
+          case arr: JsArray => NewAstNode("ArrayExpression", Map(), Some(generator(arr, sourceParser, basicSourceInterface)))
           case _ => literal(valueWithFormat.value)
         }
       }
@@ -184,7 +186,7 @@ class JsObjectLiteralInterface extends ObjectLiterals {
 
     val empty = {
       val string = "var a = {}"
-      val parsed = sourceParser.parseString("var a = {}")
+      val parsed = sourceParser.parseString(string)
       val graph = parsed.graph
       val possibleNodes = graph.nodes.toVector
         .filter(_.value.asInstanceOf[CommonAstNode].nodeType == astType)
