@@ -8,19 +8,19 @@ import play.api.libs.json._
 
 class SourceInterfaceSpec extends FunSpec {
 
-  val jsParser = new OpticParser
+  implicit val sourceParser = new OpticParser
 
   val jsInterface = new BasicSourceInterface {
-    override val literals = LiteralInterfaces(new JsLiteralInterface)(this, jsParser)
-    override val tokens = TokenInterfaces(new JsTokenInterface)(this, jsParser)
-    override val objectLiterals = ObjectLiteralsInterfaces(new JsObjectLiteralInterface)(this, jsParser)
-    override val arrayLiterals = ArrayLiteralsInterfaces(new JsArrayLiteralInterface)(this, jsParser)
+    override val literals = LiteralInterfaces(new JsLiteralInterface)
+    override val tokens = TokenInterfaces(new JsTokenInterface, new JSXTokenInterface)
+    override val objectLiterals = ObjectLiteralsInterfaces(new JsObjectLiteralInterface)
+    override val arrayLiterals = ArrayLiteralsInterfaces(new JsArrayLiteralInterface, new JsObjectPatternArrayLiteralInterface)
   }
 
   def fixture(astType: AstType, interfaces: NodeInterfaceGroup) = new {
 
     def getNodeFor(string: String): (CommonAstNode, AstGraph, String) = {
-      val parsed = jsParser.parseString(string)
+      val parsed = sourceParser.parseString(string)
       val graph = parsed.graph
       val possibleNodes = graph.nodes.toVector
         .filter(_.value.asInstanceOf[CommonAstNode].nodeType == astType)
@@ -150,6 +150,30 @@ class SourceInterfaceSpec extends FunSpec {
     it("fails when mutating an invalid token") {
       assertThrows[Error] {
         f.mutatedSourceCode("hello", JsString("bad format"))
+      }
+    }
+
+    it("can generate a token") {
+      assert(f.generateFrom(JsString("HELLO")) == "HELLO")
+    }
+
+  }
+
+  describe("JSX Token Interface") {
+
+    val f = fixture(AstType("JSXIdentifier", "es7"), jsInterface.tokens)
+
+    it("can read a valid token") {
+      assert(f.sourceCode("<Hello />") == JsString("Hello"))
+    }
+
+    it("can mutate a valid token") {
+      assert(f.mutatedSourceCode("<Hello />", JsString("Goodbye")) == "Goodbye")
+    }
+
+    it("fails when mutating an invalid token") {
+      assertThrows[Error] {
+        f.mutatedSourceCode("<Hello />", JsString("bad format"))
       }
     }
 
@@ -384,6 +408,52 @@ class SourceInterfaceSpec extends FunSpec {
         ))
 
         assert(f.mutatedSourceCode(originalString, updated) == "{ one: 1, two: { three: true, four: false } }")
+      }
+
+    }
+
+  }
+
+  describe("Js Object Pattern Array Literal Interface") {
+
+    val f = fixture(AstType("ObjectPattern", "es7"), jsInterface.arrayLiterals)
+
+    describe("parsing") {
+      it("can parse a valid object pattern") {
+        assert(f.sourceCode("function thing({a, b, c}) {}") == Json.parse("""["a", "b", "c"]"""))
+      }
+    }
+
+    describe("mutating") {
+
+      it("if nothing is changed it returns the same ") {
+        val originalString = "function thing({a, b, c}) {}"
+        val updated = Json.parse("""["a", "b", "c"]""")
+
+        assert(f.mutatedSourceCode(originalString, updated) == """{a, b, c}""")
+      }
+
+      it("can append literal element") {
+        val originalString = "function thing({a, b, c}) {}"
+        val updated = Json.parse("""["a", "b", "c", "d"]""")
+
+        println(f.mutatedSourceCode(originalString, updated))
+
+        assert(f.mutatedSourceCode(originalString, updated) ==  """{ a, b, c, d }""")
+      }
+
+      it("can add literal element to the middle") {
+        val originalString = "function thing({a, b, c}) {}"
+        val updated = Json.parse("""["a", "d", "b", "c"]""")
+
+        assert(f.mutatedSourceCode(originalString, updated) == """{ a, d, b, c }""")
+      }
+
+      it("can remove all elements") {
+        val originalString ="function thing({a, b, c}) {}"
+        val updated = Json.parse("""[]""")
+
+        assert(f.mutatedSourceCode(originalString, updated) == "{  }")
       }
 
     }

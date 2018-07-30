@@ -38,12 +38,12 @@ class OpticParser extends ParserBase {
   )
   def identifierNodeDesc = IdentifierNodeDesc(AstType("Identifier", languageName), Seq("name"))
 
-  private val thisParser = this
+  private implicit val sourceParser = this
   val basicSourceInterface = new BasicSourceInterface {
-    override val literals = LiteralInterfaces(new JsLiteralInterface)(this, thisParser)
-    override val tokens = TokenInterfaces(new JsTokenInterface)(this, thisParser)
-    override val objectLiterals = ObjectLiteralsInterfaces(new JsObjectLiteralInterface)(this, thisParser)
-    override val arrayLiterals: ArrayLiteralsInterfaces = ArrayLiteralsInterfaces(new JsArrayLiteralInterface)(this, thisParser)
+    override val literals = LiteralInterfaces(new JsLiteralInterface)
+    override val tokens = TokenInterfaces(new JsTokenInterface)
+    override val objectLiterals = ObjectLiteralsInterfaces(new JsObjectLiteralInterface)
+    override val arrayLiterals: ArrayLiteralsInterfaces = ArrayLiteralsInterfaces(new JsArrayLiteralInterface)
   }
 
   def marvinSourceInterface = JsSourceInterface

@@ -448,11 +448,28 @@ object JsSourceInterface extends NodeMutatorMap {
     override val nodeType: String = "ArrayExpression"
   }
 
+  class ObjectPattern extends AstMutator {
+    def expectedPattern(node: BaseAstNode): CodePattern =
+    // Accuracy = 1.0
+    {
+      CodePattern(SymbolComponent("{"), Space, ChildNodeList("properties", ", "), Space, SymbolComponent("}"))
+    }
+
+    override val nodeType: String = "ObjectPattern"
+  }
+
   class Property extends AstMutator {
     def expectedPattern(node: BaseAstNode): CodePattern =
     // Accuracy = 1.0
     {
-      CodePattern(ChildNode("key"), SymbolComponent(":"), Space, ChildNode("value"))
+      val key = node.properties.get("key")
+      val value = node.properties.get("value")
+
+      if (key == value) {
+        CodePattern(ChildNode("key"))
+      } else {
+        CodePattern(ChildNode("key"), SymbolComponent(":"), Space, ChildNode("value"))
+      }
     }
 
     override val nodeType: String = "Property"
@@ -619,6 +636,6 @@ object JsSourceInterface extends NodeMutatorMap {
     override val nodeType: String = "JSXClosingElement"
   }
 
-  val mapping: Map[String, AstMutator] = Map(("UnaryExpression", new UnaryExpression), ("UpdateExpression", new UpdateExpression), ("SequenceExpression", new SequenceExpression), ("CallExpression", new CallExpression), ("CatchClause", new CatchClause), ("IfStatement", new IfStatement), ("BlockStatement", new BlockStatement), ("SwitchStatement", new SwitchStatement), ("SwitchCase", new SwitchCase), ("NewExpression", new NewExpression), ("LogicalExpression", new LogicalExpression), ("ClassBody", new ClassBody), ("ContinueStatement", new ContinueStatement), ("Literal", new Literal), ("StringLiteral", new StringLiteral), ("ConditionalExpression", new ConditionalExpression), ("AssignmentExpression", new AssignmentExpression), ("ClassDeclaration", new ClassDeclaration), ("Program", new Program), ("MemberExpression", new MemberExpression), ("VariableDeclarator", new VariableDeclarator), ("EmptyStatement", new EmptyStatement), ("ReturnStatement", new ReturnStatement), ("WhileStatement", new WhileStatement), ("VariableDeclaration", new VariableDeclaration), ("TryStatement", new TryStatement), ("ForStatement", new ForStatement), ("ForInStatement", new ForInStatement), ("MethodDefinition", new MethodDefinition), ("BinaryExpression", new BinaryExpression), ("FunctionExpression", new FunctionExpression), ("Identifier", new Identifier), ("ObjectExpression", new ObjectExpression), ("ThrowStatement", new ThrowStatement), ("BreakStatement", new BreakStatement), ("FunctionDeclaration", new FunctionDeclaration), ("ArrayExpression", new ArrayExpression), ("Property", new Property), ("ThisExpression", new ThisExpression), ("ExpressionStatement", new ExpressionStatement), ("JSXAttribute", new JSXAttribute), ("JSXSpreadAttribute", new JSXSpreadAttribute), ("JSXText", new JSXText), ("JSXIdentifier", new JSXIdentifier), ("JSXExpressionContainer", new JSXExpressionContainer), ("JSXFragment", new JSXFragment), ("JSXOpeningFragment", new JSXOpeningFragment), ("JSXClosingFragment", new JSXClosingFragment), ("JSXOpeningElement", new JSXOpeningElement), ("JSXClosingElement", new JSXClosingElement), ("JSXElement", new JSXElement))
+  val mapping: Map[String, AstMutator] = Map(("UnaryExpression", new UnaryExpression), ("UpdateExpression", new UpdateExpression), ("SequenceExpression", new SequenceExpression), ("CallExpression", new CallExpression), ("CatchClause", new CatchClause), ("IfStatement", new IfStatement), ("BlockStatement", new BlockStatement), ("SwitchStatement", new SwitchStatement), ("SwitchCase", new SwitchCase), ("NewExpression", new NewExpression), ("LogicalExpression", new LogicalExpression), ("ClassBody", new ClassBody), ("ContinueStatement", new ContinueStatement), ("Literal", new Literal), ("StringLiteral", new StringLiteral), ("ConditionalExpression", new ConditionalExpression), ("AssignmentExpression", new AssignmentExpression), ("ClassDeclaration", new ClassDeclaration), ("Program", new Program), ("MemberExpression", new MemberExpression), ("VariableDeclarator", new VariableDeclarator), ("EmptyStatement", new EmptyStatement), ("ReturnStatement", new ReturnStatement), ("WhileStatement", new WhileStatement), ("VariableDeclaration", new VariableDeclaration), ("TryStatement", new TryStatement), ("ForStatement", new ForStatement), ("ForInStatement", new ForInStatement), ("MethodDefinition", new MethodDefinition), ("BinaryExpression", new BinaryExpression), ("FunctionExpression", new FunctionExpression), ("Identifier", new Identifier), ("ObjectExpression", new ObjectExpression), ("ThrowStatement", new ThrowStatement), ("BreakStatement", new BreakStatement), ("FunctionDeclaration", new FunctionDeclaration), ("ArrayExpression", new ArrayExpression), ("ObjectPattern", new ObjectPattern), ("Property", new Property), ("ThisExpression", new ThisExpression), ("ExpressionStatement", new ExpressionStatement), ("JSXAttribute", new JSXAttribute), ("JSXSpreadAttribute", new JSXSpreadAttribute), ("JSXText", new JSXText), ("JSXIdentifier", new JSXIdentifier), ("JSXExpressionContainer", new JSXExpressionContainer), ("JSXFragment", new JSXFragment), ("JSXOpeningFragment", new JSXOpeningFragment), ("JSXClosingFragment", new JSXClosingFragment), ("JSXOpeningElement", new JSXOpeningElement), ("JSXClosingElement", new JSXClosingElement), ("JSXElement", new JSXElement))
 
 }
