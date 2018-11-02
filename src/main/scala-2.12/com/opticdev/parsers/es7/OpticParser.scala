@@ -43,7 +43,7 @@ class OpticParser extends ParserBase {
     override val literals = LiteralInterfaces(new JsLiteralInterface)
     override val tokens = TokenInterfaces(new JsTokenInterface)
     override val objectLiterals = ObjectLiteralsInterfaces(new JsObjectLiteralInterface)
-    override val arrayLiterals: ArrayLiteralsInterfaces = ArrayLiteralsInterfaces(new JsArrayLiteralInterface)
+    override val arrayLiterals: ArrayLiteralsInterfaces = ArrayLiteralsInterfaces(new JsArrayLiteralInterface, new JsObjectPatternArrayLiteralInterface)
   }
 
   def marvinSourceInterface = JsSourceInterface

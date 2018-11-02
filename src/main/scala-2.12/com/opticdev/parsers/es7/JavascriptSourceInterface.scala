@@ -399,7 +399,7 @@ object JsSourceInterface extends NodeMutatorMap {
     {
       val moreThan3Properties = Try(node.properties("properties").asInstanceOf[AstArray].children.size > 3).getOrElse(false)
       if (moreThan3Properties) {
-        CodePattern(SymbolComponent("{"), Space, ChildNodeList("properties", ",\n"), Space, SymbolComponent("}"))
+        CodePattern(SymbolComponent("{"), Space, ChildNodeList("properties", ",\n\t"), Space, SymbolComponent("}"))
       } else {
         CodePattern(SymbolComponent("{"), Space, ChildNodeList("properties", ", "), Space, SymbolComponent("}"))
       }
