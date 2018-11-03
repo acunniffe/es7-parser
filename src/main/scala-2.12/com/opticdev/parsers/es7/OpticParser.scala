@@ -21,6 +21,7 @@ import java.io.InputStreamReader
 
 import com.opticdev.parsers.rules.{ParserChildrenRule, SpecificChildrenRule}
 import com.opticdev.parsers.sourcegear.ParseProxy
+import com.opticdev.parsers.tokenvalues.TokenValueHandler
 
 import scala.reflect.io.File
 
@@ -100,5 +101,7 @@ class OpticParser extends ParserBase {
   override def defaultChildrenRules: Map[AstType, Vector[ParserChildrenRule]] = Map(
     AstType("JSXOpeningElement", languageName) -> Vector(SpecificChildrenRule("attributes", SameAnyOrderPlus))
   )
+
+  override def tokenValueHandler: TokenValueHandler = JsTokenValueHandler
 
 }

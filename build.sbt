@@ -2,7 +2,7 @@ name := "es7"
 
 organization := "com.opticdev.parsers"
 
-version := "1.0.3"
+version := "1.1.0"
 
 scalaVersion := "2.12.4"
 
