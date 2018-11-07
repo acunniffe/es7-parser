@@ -1,9 +1,9 @@
 package com.opticdev.parsers.es7
 
-import com.opticdev.parsers.graph.{AstType, Child, CommonAstNode}
-import com.opticdev.parsers.{AstGraph, ParserBase, ParserResult}
+import com.opticdev.common.graph.{AstType, Child, CommonAstNode}
 import com.opticdev.parsers.sourcegear.ParseProxy
-import com.opticdev.parsers.graph.GraphImplicits._
+import com.opticdev.common.graph.GraphImplicits._
+import com.opticdev.parsers.{ParserBase, ParserResult}
 import scalax.collection.mutable.Graph
 import scalax.collection.edge.Implicits._
 

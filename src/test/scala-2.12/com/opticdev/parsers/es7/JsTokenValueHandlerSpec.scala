@@ -1,7 +1,7 @@
 package com.opticdev.parsers.es7
 
-import com.opticdev.parsers.AstGraph
-import com.opticdev.parsers.graph.{AstType, CommonAstNode}
+import com.opticdev.common.graph.{AstGraph, AstType, CommonAstNode}
+import com.opticdev.common.graph.{AstType, CommonAstNode}
 import org.scalatest.FunSpec
 
 class JsTokenValueHandlerSpec extends FunSpec {

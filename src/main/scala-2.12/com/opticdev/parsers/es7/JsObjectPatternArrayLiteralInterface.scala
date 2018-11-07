@@ -1,13 +1,16 @@
 package com.opticdev.parsers.es7
 
+import com.opticdev.common.graph
+import com.opticdev.common.graph.{AstGraph, AstType, CommonAstNode}
 import com.opticdev.marvin.common.ast.OpticGraphConverter._
 import com.opticdev.marvin.common.ast.{AstArray, NewAstNode}
 import com.opticdev.marvin.common.helpers.InRangeImplicits._
 import com.opticdev.marvin.runtime.mutators.MutatorImplicits._
 import com.opticdev.marvin.runtime.mutators.NodeMutatorMap
-import com.opticdev.parsers.graph.{AstType, Child, CommonAstNode}
+import com.opticdev.common.graph.{AstType, Child, CommonAstNode}
 import com.opticdev.parsers.sourcegear.basic.{BasicSourceInterface, _}
-import com.opticdev.parsers.{AstGraph, ParserBase, graph}
+import com.opticdev.common.graph.AstGraph
+import com.opticdev.parsers.ParserBase
 import play.api.libs.json._
 
 import scala.util.{Success, Try}

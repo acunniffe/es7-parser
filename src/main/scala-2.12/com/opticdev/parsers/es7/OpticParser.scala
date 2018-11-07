@@ -4,24 +4,26 @@ import java.io.File
 import java.security.MessageDigest
 
 import javax.script.{ScriptEngine, ScriptEngineManager}
-import com.opticdev.parsers.graph.{AstType, CommonAstNode}
+import com.opticdev.common.graph.{AstType, CommonAstNode}
 import com.opticdev.parsers.sourcegear.advanced.{BaseAstMutator, MarvinSourceInterface}
 import com.opticdev.parsers.sourcegear.basic._
 import com.opticdev.parsers.utils.Profiling
-import com.opticdev.parsers.{AstGraph, _}
+import com.opticdev.common.graph.{AstGraph, _}
 import jdk.nashorn.api.scripting.{NashornScriptEngine, ScriptObjectMirror}
 import play.api.libs.json._
 import javax.script.CompiledScript
-import com.opticdev.parsers.rules.SameAnyOrderPlus
+import com.opticdev.sdk.rules.SameAnyOrderPlus
 
 import scala.io.Source
 import scala.util.Random
 import java.io.BufferedReader
 import java.io.InputStreamReader
 
-import com.opticdev.parsers.rules.{ParserChildrenRule, SpecificChildrenRule}
+import com.opticdev.parsers._
+import com.opticdev.parsers.sdk_subset.IncludedSDKItems
+import com.opticdev.sdk.rules.{ParserChildrenRule, SpecificChildrenRule}
 import com.opticdev.parsers.sourcegear.ParseProxy
-import com.opticdev.parsers.tokenvalues.TokenValueHandler
+import com.opticdev.parsers.token_values.TokenValueHandler
 
 import scala.reflect.io.File
 
@@ -103,5 +105,7 @@ class OpticParser extends ParserBase {
   )
 
   override def tokenValueHandler: TokenValueHandler = JsTokenValueHandler
+
+  override def defaultSDKItems: IncludedSDKItems = JsIncludedSDKItems.all
 
 }

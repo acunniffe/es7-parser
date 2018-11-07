@@ -1,7 +1,7 @@
 package com.opticdev.parsers.es7
 
 import com.opticdev.marvin.common.ast.{AstArray, AstBoolean, AstString, NewAstNode}
-import com.opticdev.parsers.graph.AstType
+import com.opticdev.common.graph.AstType
 import org.scalatest.FunSpec
 
 import scala.util.Try

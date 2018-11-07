@@ -1,7 +1,6 @@
 package com.opticdev.parsers.es7
 
-import com.opticdev.parsers.AstGraph
-import com.opticdev.parsers.graph.{CommonAstNode, AstType, BuilderPhase, GraphBuilder}
+import com.opticdev.common.graph.{AstGraph, CommonAstNode, AstType, BuilderPhase, GraphBuilder}
 import play.api.libs.json._
 
 object ASTJsonToGraph {

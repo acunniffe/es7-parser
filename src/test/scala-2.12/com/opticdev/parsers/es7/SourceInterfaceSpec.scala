@@ -1,7 +1,6 @@
 package com.opticdev.parsers.es7
 
-import com.opticdev.parsers.AstGraph
-import com.opticdev.parsers.graph.{AstType, CommonAstNode}
+import com.opticdev.common.graph.{AstGraph, AstType, CommonAstNode}
 import com.opticdev.parsers.sourcegear.basic._
 import org.scalatest.FunSpec
 import play.api.libs.json._

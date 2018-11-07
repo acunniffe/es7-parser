@@ -1,6 +1,6 @@
 package com.opticdev.parsers.es7
 
-import com.opticdev.parsers.graph.AstType
+import com.opticdev.common.graph.AstType
 import com.opticdev.parsers.sourcegear.basic.{SourceGenerator, SourceMutator, SourceParser, Token}
 import play.api.libs.json.JsString
 

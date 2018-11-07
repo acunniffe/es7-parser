@@ -1,7 +1,6 @@
 package com.opticdev.parsers.es7
 
-import com.opticdev.parsers.{AstGraph, ParserBase}
-import com.opticdev.parsers.graph.{CommonAstNode, AstType, Child, GraphImplicits}
+import com.opticdev.common.graph._
 import com.opticdev.parsers.sourcegear.basic._
 import play.api.libs.json._
 import com.opticdev.marvin.runtime.mutators.MutatorImplicits._
@@ -11,6 +10,7 @@ import scala.util.{Failure, Success, Try}
 import com.opticdev.marvin.common.ast._
 import com.opticdev.marvin.common.ast.OpticGraphConverter._
 import com.opticdev.marvin.runtime.mutators.NodeMutatorMap
+import com.opticdev.parsers.ParserBase
 
 import scala.collection.immutable
 

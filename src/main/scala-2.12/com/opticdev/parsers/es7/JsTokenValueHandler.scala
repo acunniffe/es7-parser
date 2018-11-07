@@ -1,13 +1,13 @@
 package com.opticdev.parsers.es7
 
-import com.opticdev.parsers.graph.AstType
-import com.opticdev.parsers.tokenvalues._
+import com.opticdev.common.graph.AstType
+import com.opticdev.parsers.token_values._
 import play.api.libs.json.JsString
 
 import scala.util.Try
 
 object JsTokenValueHandler extends TokenValueHandler {
-  import com.opticdev.parsers.tokenvalues.TokenValuePredicates._
+  import com.opticdev.parsers.token_values.TokenValuePredicates._
 
   override val tokenRules: Seq[TokenRule] = Seq(
     //variable declarator

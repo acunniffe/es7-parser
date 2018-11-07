@@ -1,6 +1,7 @@
 package com.opticdev.parsers.es7
 
-import com.opticdev.parsers.graph.{CommonAstNode, AstType}
+import com.opticdev.common.graph.AstType
+import com.opticdev.common.graph.{AstType, CommonAstNode}
 import com.opticdev.parsers.sourcegear.basic._
 import play.api.libs.json._
 

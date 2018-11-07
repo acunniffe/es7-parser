@@ -1,7 +1,7 @@
 package com.opticdev.parsers.es7
 
-import com.opticdev.parsers.graph.AstType
-import com.opticdev.parsers.graph.GraphImplicits._
+import com.opticdev.common.graph.AstType
+import com.opticdev.common.graph.GraphImplicits._
 import org.scalatest.FunSpec
 
 class EnterOnPostProcessorSpec extends FunSpec {
