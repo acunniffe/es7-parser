@@ -20,6 +20,7 @@ import java.io.BufferedReader
 import java.io.InputStreamReader
 
 import com.opticdev.parsers._
+import com.opticdev.parsers.imports.ImportHandler
 import com.opticdev.parsers.sdk_subset.IncludedSDKItems
 import com.opticdev.sdk.rules.{ParserChildrenRule, SpecificChildrenRule}
 import com.opticdev.parsers.sourcegear.ParseProxy
@@ -46,7 +47,7 @@ class OpticParser extends ParserBase {
     override val literals = LiteralInterfaces(new JsLiteralInterface)
     override val tokens = TokenInterfaces(new JsTokenInterface)
     override val objectLiterals = ObjectLiteralsInterfaces(new JsObjectLiteralInterface)
-    override val arrayLiterals: ArrayLiteralsInterfaces = ArrayLiteralsInterfaces(new JsArrayLiteralInterface, new JsObjectPatternArrayLiteralInterface)
+    override val arrayLiterals: ArrayLiteralsInterfaces = ArrayLiteralsInterfaces(new JsArrayLiteralInterface, new JsObjectPatternArrayLiteralInterface, new JsImportLiteralInterface)
   }
 
   def marvinSourceInterface = JsSourceInterface
@@ -63,7 +64,7 @@ class OpticParser extends ParserBase {
         |(function () {
         |${acornSource}
         |${jsxInject}
-        |return {ast: JSON.stringify(acorn.parse(contents, {sourceType: 'module', ecmaVersion: 7, 'plugins': {'jsx': true}} ))}
+        |return {ast: JSON.stringify(acorn.parse(contents, {sourceType: 'module', ecmaVersion: 8, 'plugins': {'jsx': true}} ))}
         |})()
       """.stripMargin
 
@@ -107,5 +108,7 @@ class OpticParser extends ParserBase {
   override def tokenValueHandler: TokenValueHandler = JsTokenValueHandler
 
   override def defaultSDKItems: IncludedSDKItems = JsIncludedSDKItems.all
+
+  override def importHandler: ImportHandler = JsImportHandler
 
 }

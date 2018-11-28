@@ -13,7 +13,7 @@ class SourceInterfaceSpec extends FunSpec {
     override val literals = LiteralInterfaces(new JsLiteralInterface)
     override val tokens = TokenInterfaces(new JsTokenInterface, new JSXTokenInterface)
     override val objectLiterals = ObjectLiteralsInterfaces(new JsObjectLiteralInterface)
-    override val arrayLiterals = ArrayLiteralsInterfaces(new JsArrayLiteralInterface, new JsObjectPatternArrayLiteralInterface)
+    override val arrayLiterals = ArrayLiteralsInterfaces(new JsArrayLiteralInterface, new JsObjectPatternArrayLiteralInterface, new JsImportLiteralInterface)
   }
 
   def fixture(astType: AstType, interfaces: NodeInterfaceGroup) = new {
@@ -529,6 +529,49 @@ class SourceInterfaceSpec extends FunSpec {
         val updated = Json.parse("""[]""")
 
         assert(f.mutatedSourceCode(originalString, updated) == "[  ]")
+      }
+
+    }
+
+  }
+
+  describe("Js Import Literal Interface") {
+
+    val f = fixture(AstType("ImportDeclaration", "es7"), jsInterface.arrayLiterals)
+
+    describe("parsing") {
+      it("can parse a valid import w default") {
+        assert(f.sourceCode("import me from 'there'") == Json.parse("""[{"local":"me","imported":"me","path":"there"}]"""))
+      }
+
+      it("can parse a valid named import") {
+        assert(f.sourceCode("import {one} from 'there'") == Json.parse("""[{"local":"one","imported":"one","path":"there"}]"""))
+      }
+
+      it("can parse a valid named with a different local name") {
+        assert(f.sourceCode("import {one as two} from 'there'") == Json.parse("""[{"local":"two","imported":"one","path":"there"}]"""))
+      }
+
+      it("can multiple items from same file") {
+        assert(f.sourceCode("import {one, two, three as four} from 'there'") == Json.parse("""[{"local":"one","imported":"one","path":"there"},{"local":"two","imported":"two","path":"there"},{"local":"four","imported":"three","path":"there"}]"""))
+      }
+    }
+
+    describe("generator") {
+      val interface = new JsImportLiteralInterface
+      def gen(jsValue: JsValue) =
+        interface.generator(jsValue, sourceParser, jsInterface)
+      it("can generate a default one") {
+        assert(gen(Json.parse("""[{"local":"me","imported":"me","path":"there"}]""")) == """import me from 'there'""")
+      }
+
+      it("can generate single import with custom name") {
+        assert(gen(Json.parse("""[{"local":"hello","imported":"me","path":"there"}]""")) == "import {me as hello} from 'there'")
+      }
+
+      it("can generate multiple imports") {
+        assert(gen(Json.parse("""[{"local":"one","imported":"one","path":"there"},{"local":"two","imported":"two","path":"there"},{"local":"four","imported":"three","path":"there"}]""")) ==
+          "import {one, two, three as four} from 'there'")
       }
 
     }

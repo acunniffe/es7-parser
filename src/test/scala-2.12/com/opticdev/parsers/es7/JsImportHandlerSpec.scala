@@ -16,7 +16,14 @@ class JsImportHandlerSpec extends FunSpec {
       val results = JsImportHandler.importsFromModels(Set(
         ImportModel("basic-import", Json.parse("""{"definedAs": "hello", "path": "../example.js"}""").as[JsObject])
       ))(exampleJs, projectDirectory)
-      assert(results.head._2.head.definedAs == "hello")
+      assert(results.head.local == "hello")
+    }
+
+    it("works for named imports") {
+      val results = JsImportHandler.importsFromModels(Set(
+        ImportModel("named-import", Json.parse("""{"local":"exampleHandler","path":"../example.js","imported":"exampleHandler"}""").as[JsObject])
+      ))(exampleJs, projectDirectory)
+      assert(results.head.local == "exampleHandler")
     }
   }
 
@@ -38,6 +45,12 @@ class JsImportHandlerSpec extends FunSpec {
       implicit val file = File("src/test/resources/test-proj-dir/abc/def/test.js")
       val resolved = JsImportHandler.fileFromPath("../example")
       assert(resolved.get isSamePathAs exampleJs)
+    }
+
+    it("ignores node_modules since Optic doesn't index those") {
+      implicit val file = File("src/test/resources/test-proj-dir/abc/def/test.js")
+      val resolved = JsImportHandler.fileFromPath("module")
+      assert(resolved.isEmpty)
     }
   }
 }
